@@ -1,46 +1,51 @@
 import glob
 import time
 
+path = '/Users/yzhao/ccc/2022/senior/s2j4/'
 
-def violation(num):
+
+def violation(rule1, rule2, groups):
+    names = {}
+    repeated = []
+    for gIdx, g in enumerate(groups):
+        for p in g:
+            if p in names:
+                print("person in multiple group: {}".format(p))
+            names[p] = gIdx
+
     count = 0
-    for i in range(num // 4 + 1):
-        for j in range(num // 5 + 1):
-            if i * 4 + j * 5 == num:
-                count += 1
-    return count
-
-
-def find_ways2(num):
-    count = 0
-    for i in range(num // 4 + 1):
-        j = (num - 4*i)//5
-        if i*4+j*5 == num:
+    for [n1, n2] in rule1:
+        if (n1 not in names) or (n2 not in names) or (names[n1] != names[n2]):
             count += 1
+
+    for [n1, n2] in rule2:
+        if (n1 in names) and (n2 in names) and (names[n1] == names[n2]):
+            count += 1
+
     return count
 
 
-files = glob.glob("/Users/yzhao/ccc/2022/senior/s1/s2.*.in")
-sorted(files)
+files = glob.glob(path + 's2*.in')
+# files = glob.glob(path + 's2.sample-02.in')
+files.sort()
 for file_name in files:
     with open(file_name, "r") as file:
-        for line in file:
-            print("working on {}".format(file_name))
-            start1 = time.time()
-            res1 = find_ways1(int(line))
-            time1 = time.time() - start1
-            print(file_name)
-            print("way1 took {} sec".format(time1))
-            start2 = time.time()
-            res2 = find_ways2(int(line))
-            time2 = time.time() - start2
-            print("way2 took {} sec".format(time2))
-            expected = -1
-            with open(file_name.replace("in", "out")) as ofile:
-                expected = int(ofile.readline())
-            if res1 != expected:
-                print("way1 wrong answer, expected {}, result {}".format(
-                    expected, res1))
-            if res2 != expected:
-                print("way1 wrong answer, expected {}, result {}".format(
-                    expected, res2))
+        start = time.time()
+        r1Num = int(file.readline())
+        rule1 = [file.readline().strip().split() for i in range(r1Num)]
+        # print(rule1)
+        r2Num = int(file.readline())
+        rule2 = [file.readline().strip().split() for i in range(r2Num)]
+        # print(rule2)
+        gNum = int(file.readline())
+        groups = [file.readline().strip().split() for i in range(gNum)]
+        # print(groups)
+        res = violation(rule1, rule2, groups)
+        duration = time.time() - start
+        print(file_name)
+        print("took {:.6f} sec".format(duration))
+        expected = -1
+        with open(file_name.replace("in", "out")) as ofile:
+            expected = int(ofile.readline())
+        if res != expected:
+            print("wrong answer, expected {}, result {}".format(expected, res))
